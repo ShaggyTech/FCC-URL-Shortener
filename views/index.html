@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+   <head>
+      <title>Backend Challenges | Free Code Camp</title>
+      <link rel="shortcut icon" href="https://cdn.hyperdev.com/us-east-1%3A52a203ff-088b-420f-81be-45bf559d01b1%2Ffavicon.ico" type="image/x-icon"/>
+      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+     
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+      <!-- Optional theme -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+     
+      <link href="/public/style.css" rel="stylesheet" type="text/css">
+   </head>
+
+   <body>
+      <div class="container">
+         <h1>API BASEJUMP: URL Shortener Microservice</h1>
+        <h3>
+          User stories:
+        </h3>
+        <ol>
+           <li>I can pass a URL as a parameter and I will receive a shortened URL in the JSON response.</li>
+           <li>If I pass an invalid URL that doesn't follow the valid http://www.example.com format, the JSON response will contain an error instead.</li>
+           <li>IWhen I visit that shortened URL, it will redirect me to my original link.</li>
+        </ol>
+        
+        <h2>
+          Example - Create a new shortened URL:
+        </h2>
+        <code>https://pollen-mistake.glitch.me/new/&ltURL_TO_BE_SHORTENED&gt</code><br />
+        <a href="https://pollen-mistake.glitch.me/new/https://www.shaggytech.com/calculator"><code>https://pollen-mistake.glitch.me/new/https://www.shaggytech.com/calculator</code></a><br />
+        <a href="https://pollen-mistake.glitch.me/new/localhost:80"><code>https://pollen-mistake.glitch.me/new/localhost:80</code></a>
+        <h3>
+          Example - Output after creation:
+        </h3>
+        <code>
+          { "original_url":"https://www.shaggytech.com/calculator", "short_url":"https://pollen-mistake.glitch.me/54625" }
+        </code>
+        <h3>
+          Example - Usage:
+        </h3>
+        <code>https://pollen-mistake.glitch.me/54625</code>
+        <h4>
+          Redirects to:
+        </h4>
+        <code>https://www.shaggytech.com/calculator</code>
+      </div>
+   </body>
+
+</html>
+

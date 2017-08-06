@@ -1,0 +1,31 @@
+/****** Main Styling ******/
+
+body {
+	font-family: 'Roboto', sans-serif;
+	font-size: 16px;
+	color: #222;
+	background-color: #ECF0F1;
+
+}
+
+.container {
+	margin-top: 40px;
+}
+
+ol {
+	list-style-position: inside;
+}
+
+li {
+  padding: 0.5rem;
+}
+
+.red {
+  color: #c7254e;
+}
+
+@media (max-width: 500px) {
+  body {
+    font-size: 14px;
+  }
+}
