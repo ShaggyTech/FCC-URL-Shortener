@@ -1,39 +1,3 @@
-/*
-
-function get(key) {
-  return new Promise(function (resolve, reject) {
-    try {
-      if (typeof(key) !== "string") {
-        reject(new DatastoreKeyNeedToBeStringException(key));
-      } else {
-        collection.findOne({"key":key}, function (err, data) {
-          if (err) {
-            reject(new DatastoreUnderlyingException(key, err));
-          } else {
-            try {
-              if(data===null){
-                resolve(null);
-              }
-              else{
-                resolve(JSON.parse(data.value));
-              }
-            } catch (ex) {
-              reject(new DatastoreDataParsingException(data.value, ex));
-            }
-          }
-        });
-      }
-    } catch (ex) {
-      reject(new DatastoreUnknownException("get", {"key": key}, ex));
-    }
-  });
-}
-
-
-*/
-
-
-
 'use strict'
 
 const mongo = require("mongodb"),
@@ -43,11 +7,39 @@ const MONGODB_URI = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+proce
 
 let collection;
 
-//       find(collection, shortUrl, what we're returning)
-function find(value) {
+function insert(value) {
+  const urls = {
+               original: value,
+               short: `${rw()}-${rw()}`
+             };
+  
+  return new Promise(function(resolve, reject) {
+    try {
+      collection.insertOne( {
+        original: urls.original,
+        short: urls.short
+      }, function(err, result) {
+        if (err) reject("Insert Error: " + err)
+        else {
+          try {
+            console.log("Inserted a document into the url collection.")
+            resolve(urls)
+          } catch(ex) {
+            reject("Insert Ex: " + ex)
+          }
+        }  
+      })
+    }
+    catch(ex) {
+      reject("Insert Ex: " + ex)
+    }
+  })
+}
+
+function find(key, value) {
   return new Promise(function (resolve, reject) {
     try {
-      collection.findOne({short: value},{_id: 0}, function(err, result){
+      collection.findOne({[key]: {$eq: value}},{_id: 0}, function(err, result){
         if (err) reject("Databse Error: " + err)
         else {
           try {
@@ -82,52 +74,8 @@ function connect() {
   });
 }
 
-var findOriginal = function(db, url, callback) {
-  db.collection(process.env.COL).findOne( {
-    short: {$eq: url}
-  }, {
-    _id: 0
-  }, function(err, result){
-    if (err) throw err
-    if (result) callback(result.original)
-    else callback(false)
-  });
-};
-
-var findShort = function(db, url, callback) {
-  db.collection(process.env.COL).findOne({
-    original: {$eq: url}
-  }, {
-    _id: 0
-  }, function(err, result){
-    if (err) throw err
-    if (result) callback(result.short)
-    else callback(false)
-  })
-}
-
-var insertUrl = function(db, longUrl, callback) {
-  
-  var urls = {
-               original: longUrl,
-               short: `${rw()}-${rw()}`
-             };
-  
-  db.collection(process.env.COL).insertOne( {
-      original: urls.original,
-      short: urls.short
-   }, function(err, result) {
-    if (err) throw err
-    console.log("Inserted a document into the url collection.");
-    callback(urls);
-  });
-};
-
 var Datastore = {
-  //set: set,
-  //get: get,
-  //remove: remove,
-  //removeMany: removeMany,
+  insert: insert,
   find: find,
   connect: connect
 }
