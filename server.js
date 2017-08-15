@@ -58,11 +58,10 @@ app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
-  
   if (!connected) {
     try {
-      Database.connect().
-      then(function() {
+      connected = Database.connect()
+      .then(function() {
         res.sendFile(__dirname + '/views/index.html');
       })
     } catch (err) {
