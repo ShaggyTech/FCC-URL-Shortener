@@ -11,7 +11,7 @@ let collection,
 function insert(value) {
   const urls = {
                original: value,
-               short: `${appHostname}/${rw()}-${rw()}`
+               short: `${appHostname}${rw()}-${rw()}`
              };
   
   return new Promise(function(resolve, reject) {

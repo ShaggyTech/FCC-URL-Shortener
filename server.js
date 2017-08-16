@@ -5,17 +5,15 @@ const express = require('express'),
       Helpers = require('./models/helpers'),
       app = express();
 
-let connected = false;
+let initialized = false;
 
-// http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
 
-// http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html')
 })
 
-app.route("/new/*").get(function(req, res) {
+app.route('/new/*').get(function(req, res) {
   try {
     Helpers.validate(encodeURI(req.params[0]))
     .then ((validUrl) => {
@@ -31,7 +29,7 @@ app.route("/new/*").get(function(req, res) {
                 res.json(inserted)
               })
               } catch (err) {
-              res.json("Find Error: " + err)
+              res.json('Find Error: ' + err)
               }    
           }
           })
@@ -40,7 +38,7 @@ app.route("/new/*").get(function(req, res) {
         }
       }
       else {
-        res.json({"Error": encodeURI(req.params[0]) + " is not a valid URL"})
+        res.json({"Error": encodeURI(req.params[0]) + ' is not a valid URL'})
       }
     })
   } catch(err) {
@@ -50,7 +48,7 @@ app.route("/new/*").get(function(req, res) {
 
 app.route('/:short').get(function(req, res) {
   try {
-      Database.find('short', `https://${req.hostname}/${req.params.short}`)
+      Database.find('short', `${process.env.APPURL}${req.params.short}`)
         .then(function(found){
           if (found) res.redirect(encodeURI(found['original']))
           else res.json({'Error': 'That Short URL is not valid'})
@@ -59,16 +57,16 @@ app.route('/:short').get(function(req, res) {
     console.log("Database Error: " + err)
     res.json("Databse Error: " + err)
   }
-});
+})
 
-// listen for requests :)
+// listen for requests and connect to the database if this is the first connection
 let listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
-  if (!connected) {
+  if (!initialized) {
     try {
-      connected = Database.connect(process.env.APPURL)
+      initialized = Database.connect(process.env.APPURL)
     } catch (err) {
       console.log("Database Connection Error: " + err)
     }
   }
-});
+})
