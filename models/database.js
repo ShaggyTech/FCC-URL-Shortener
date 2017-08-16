@@ -5,12 +5,13 @@ const mongo = require("mongodb"),
 
 const MONGODB_URI = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.DBPORT+'/'+process.env.DB
 
-let collection;
+let collection,
+    hostname;
 
 function insert(value) {
   const urls = {
                original: value,
-               short: `${rw()}-${rw()}`
+               short: `${hostname}${rw()}-${rw()}`
              };
   
   return new Promise(function(resolve, reject) {
@@ -39,7 +40,7 @@ function insert(value) {
 function find(key, value) {
   return new Promise(function (resolve, reject) {
     try {
-      collection.findOne({[key]: {$eq: value}},{_id: 0}, function(err, result){
+      collection.findOne({[key]: {$eq: `${hostname}${value}`}},{_id: 0}, function(err, result){
         if (err) reject("Databse Error: " + err)
         else {
           try {
@@ -58,15 +59,23 @@ function find(key, value) {
   })
 }
 
-function connect() {
+function connect(reqHostname) {
   return new Promise(function (resolve, reject) {
     try {
-      console.log("Connecting.....")
+      console.log("Connecting to the database.....")
       mongo.MongoClient.connect(MONGODB_URI, function(err, db) {
         if(err) reject(err);
-        collection = db.collection(process.env.COLLECTION);
-        console.log("Collection Saved");
-        resolve(collection);
+        else {
+          try {
+            hostname = `https://${reqHostname}/`;
+            collection = db.collection(process.env.COLLECTION);
+            console.log("Collection Saved");
+            resolve(collection);
+          }
+          catch(ex) {
+            reject("Datbase Ex: " + ex)
+          }
+        }
       });
     } catch(ex) {
       reject("Error connecting to the database!");
