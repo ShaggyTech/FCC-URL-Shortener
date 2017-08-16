@@ -7,12 +7,14 @@ const express = require('express'),
 
 let connected = false;
 
+// http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
 
+// http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
   if (!connected) {
     try {
-      connected = Database.connect(req.hostname)
+      connected = Database.connect()
       .then(function() {
         res.sendFile(__dirname + '/views/index.html')
       })
@@ -55,7 +57,8 @@ app.route('/:short').get(function(req, res) {
           else res.redirect('/')
         })
   } catch (err) {
-    res.json("Get Short Error: " + err)
+    console.log("Database Error: " + err)
+    res.json("Databse Error: " + err)
   }
 });
 
