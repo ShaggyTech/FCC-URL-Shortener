@@ -24,14 +24,16 @@ app.route("/new/*").get(function(req, res) {
           Database.find('original', validUrl)
           .then((found) => {
             if (found) res.json(found)
-            else try {
+            else {
+              try {
               Database.insert(validUrl)
               .then((inserted) => {
                 res.json(inserted)
               })
-            } catch (err) {
-            res.json("Find Error: " + err)
-            }    
+              } catch (err) {
+              res.json("Find Error: " + err)
+              }    
+          }
           })
         } catch(err) {
           res.json('/new/* error: ' + err)
@@ -48,10 +50,10 @@ app.route("/new/*").get(function(req, res) {
 
 app.route('/:short').get(function(req, res) {
   try {
-      Database.find('short', req.params.short)
+      Database.find('short', `https://${req.hostname}/${req.params.short}`)
         .then(function(found){
-          if (found) res.redirect(encodeURI(found["original"]))
-          else res.redirect('/')
+          if (found) res.redirect(encodeURI(found['original']))
+          else res.json({'Error': 'That Short URL is not valid'})
         })
   } catch (err) {
     console.log("Database Error: " + err)

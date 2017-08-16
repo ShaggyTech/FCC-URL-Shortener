@@ -40,7 +40,7 @@ function insert(value) {
 function find(key, value) {
   return new Promise(function (resolve, reject) {
     try {
-      collection.findOne({[key]: {$eq: `${appHostname}${value}`}},{_id: 0}, function(err, result){
+      collection.findOne({[key]: {$eq: value}},{_id: 0}, function(err, result){
         if (err) reject("Databse Error: " + err)
         else {
           try {
