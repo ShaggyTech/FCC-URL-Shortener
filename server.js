@@ -12,17 +12,7 @@ app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
-  if (!connected) {
-    try {
-      connected = Database.connect()
-      .then(function() {
-        res.sendFile(__dirname + '/views/index.html')
-      })
-    } catch (err) {
-      console.log("Database Error: " + err)
-      res.json("Database Error: " + err)
-    }
-  } else res.sendFile(__dirname + '/views/index.html')
+  res.sendFile(__dirname + '/views/index.html')
 })
 
 app.route("/new/*").get(function(req, res) {
@@ -65,4 +55,11 @@ app.route('/:short').get(function(req, res) {
 // listen for requests :)
 let listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
+  if (!connected) {
+    try {
+      connected = Database.connect()
+    } catch (err) {
+      console.log("Database Connection Error: " + err)
+    }
+  }
 });
