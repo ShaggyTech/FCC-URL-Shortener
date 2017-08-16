@@ -1,8 +1,8 @@
 'require strict'
 
 const express = require('express'),
-      validUrl = require("valid-url"),
       Database = require('./models/database'),
+      Helpers = require('./models/helpers'),
       app = express();
 
 let connected = false;
@@ -16,26 +16,33 @@ app.get("/", function (req, res) {
 })
 
 app.route("/new/*").get(function(req, res) {
-  let longUrl = encodeURI(req.params[0]);
-  
-  if (!validUrl.isWebUri(longUrl)) res.send({"error": "Invalid URL was entered"});
-  
   try {
-      Database.find('original', longUrl)
-        .then(function(found){
-          if (found) res.json(found)
-          else try {
-            Database.insert(longUrl)
-              .then(function(inserted) {
+    Helpers.validate(encodeURI(req.params[0]))
+    .then ((validUrl) => {
+      if (validUrl) {
+        try {
+          Database.find('original', validUrl)
+          .then((found) => {
+            if (found) res.json(found)
+            else try {
+              Database.insert(validUrl)
+              .then((inserted) => {
                 res.json(inserted)
               })
-          } catch (err) {
+            } catch (err) {
             res.json("Find Error: " + err)
-          }    
-        })
-  } catch (err) {
-    console.log("Find Error: " + err)
-    res.json("Find Error: " + err)
+            }    
+          })
+        } catch(err) {
+          res.json('/new/* error: ' + err)
+        }
+      }
+      else {
+        res.json({"Error": encodeURI(req.params[0]) + " is not a valid URL"})
+      }
+    })
+  } catch(err) {
+    res.json('/new/* Error: ' + err);
   }
 })
 
@@ -57,7 +64,7 @@ let listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
   if (!connected) {
     try {
-      connected = Database.connect()
+      connected = Database.connect(process.env.APPURL)
     } catch (err) {
       console.log("Database Connection Error: " + err)
     }
