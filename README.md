@@ -1,4 +1,4 @@
-Timestamp Microservice
+URL Shortener Microservice
 
 Hosted on https://www.glitch.com
 
