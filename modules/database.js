@@ -26,12 +26,8 @@ function insert(value) {
       }, (err, result) => {
         if (err) reject("Insert Error: " + err)
         else {
-          try {
-            console.log("Inserted a document into the url collection.")
-            resolve(urls)
-          } catch(ex) {
-            reject("Insert Ex: " + ex)
-          }
+          console.log("Inserted a document into the url collection.")
+          resolve(urls)
         }  
       })
     }
@@ -49,13 +45,8 @@ function find(key, value) {
       collection.findOne({[key]: {$eq: value}},{_id: 0}, (err, result) => {
         if (err) reject("Databse Error: " + err)
         else {
-          try {
-            if (result === null) resolve(null)
-            else resolve(result)
-          }
-          catch(ex) {
-            reject("Database Ex: " + ex);
-          }
+          if (result === null) resolve(null)
+          else resolve(result)
         }
       })
     } 
