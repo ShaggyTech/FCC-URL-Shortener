@@ -1,5 +1,5 @@
 {
-  "name": "URL Shortener",
+  "name": "URL-Shortener",
   "version": "1.0.0",
   "description": "Built with node.js and express.js for https://www.freecodecamp.com/challenges/url-shortener-microservice",
   "main": "server.js",
