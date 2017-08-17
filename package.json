@@ -7,7 +7,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.15.3",
+    "express": "*",
     "mongodb": "*",
     "random-word": "*",
     "valid-url": "*"
