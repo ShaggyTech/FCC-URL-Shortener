@@ -1,102 +1,72 @@
-// server.js
-// where your node app starts
+'require strict'
 
-// init project
-var express = require('express');
-var mongo = require("mongodb");
-var rw = require("random-word");
-//var request = require("request");
-var validUrl = require("valid-url");
-var app = express();
+const express = require('express'),
+      Database = require('./models/database'),
+      Helpers = require('./models/helpers'),
+      app = express();
 
-// Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname, details set in .env
-var uri = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.DBPORT+'/'+process.env.DB;
+let initialized = false;
 
-var insertUrl = function(db, longUrl, callback) {
-  
-  var urls = [{
-               "original": longUrl,
-               "short": `${rw()}-${rw()}`
-             }];
-  
-  db.collection(process.env.COL).insertOne( {
-      urls
-   }, function(err, result) {
-    if (err) throw err
-    console.log("Inserted a document into the url collection.");
-    callback(urls);
-  });
-};
-
-var findShort = function(db, url, callback) {
-  db.collection(process.env.COL).findOne({
-    "urls.original": {$eq: url}
-  }, {
-    _id: 0
-  }, function(err, result){
-    if (err) throw err
-    if (result) callback(result.urls[0])
-    else callback(false)
-  })
-}
-
-var findOriginal = function(db, url, callback) {
-  db.collection(process.env.COL).findOne( {
-    "urls.short": {$eq: url},
-  }, {
-    _id: 0
-  }, function(err, result){
-    if (err) throw err
-    if (result) callback(result.urls[0]["original"])
-    else callback(false)
-  });
-};
-
-// http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
 
-// http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
-});
+  res.sendFile(__dirname + '/views/index.html')
+})
 
-app.route("/new/*").get(function(req, res) {
-  var longUrl = encodeURI(req.params[0]);
-  
-  if (!validUrl.isWebUri(longUrl)) res.send({"error": "Invalid URL was entered"}).end();
-  else mongo.MongoClient.connect(uri, function(err, db) {
-    if (err) throw err;
-    findShort(db, longUrl, function(urlObj) {
-      if (urlObj) {
-        db.close();
-        res.send(urlObj);
-      } 
-      else {
-        insertUrl(db, longUrl, function(urlObj) {
-          db.close();
-          res.send(urlObj);
-        });
+app.route('/new/*').get(function(req, res) {
+  try {
+    Helpers.validate(encodeURI(req.params[0]))
+    .then ((validUrl) => {
+      if (validUrl) {
+        try {
+          Database.find('original', validUrl)
+          .then((found) => {
+            if (found) res.json(found)
+            else {
+              try {
+              Database.insert(validUrl)
+              .then((inserted) => {
+                res.json(inserted)
+              })
+              } catch (err) {
+              res.json('Find Error: ' + err)
+              }    
+          }
+          })
+        } catch(err) {
+          res.json('/new/* error: ' + err)
+        }
       }
-    });
-  });
-});
+      else {
+        res.json({"Error": encodeURI(req.params[0]) + ' is not a valid URL'})
+      }
+    })
+  } catch(err) {
+    res.json('/new/* Error: ' + err);
+  }
+})
 
-app.route("/:short").get(function(req, res) {
-    mongo.MongoClient.connect(uri, function(err, db) {
-      if (err) throw err;
-      findOriginal(db, req.params.short, function(originalUrl) {
-        db.close();
-        if (originalUrl) {
-          res.redirect(originalUrl);
-        }
-        else {
-          res.redirect("/");
-        }
-      });
-    });
-});
+app.route('/:short').get(function(req, res) {
+  try {
+      Database.find('short', `${process.env.APPURL}${req.params.short}`)
+        .then(function(found){
+          if (found) res.redirect(encodeURI(found['original']))
+          else res.json({'Error': 'That Short URL is not valid'})
+        })
+  } catch (err) {
+    console.log("Database Error: " + err)
+    res.json("Databse Error: " + err)
+  }
+})
 
-// listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
+// listen for requests and connect to the database if this is the first connection
+let listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
-});
+  if (!initialized) {
+    try {
+      initialized = Database.connect(process.env.APPURL)
+    } catch (err) {
+      console.log("Database Connection Error: " + err)
+    }
+  }
+})
