@@ -1,4 +1,6 @@
 'use strict'
+
+// Validates a url and simply returns that url if it is valid, else returns undefined
 const validUrl = require('valid-url');
 
 var validate = (url) => {
