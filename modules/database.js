@@ -39,26 +39,9 @@ function insert(value) {
 
 // Returns the complete database object (excluding the _id field) if the key:value was found
 // Returns null if there was no match in the database
-function find(key, value) {
-  return new Promise((resolve, reject) => {
-    try {
-      collection.findOne({[key]: {$eq: value}},{_id: 0}, (err, result) => {
-        if (err) reject("Databse Error: " + err)
-        else {
-          try {
-            if (result === null) resolve(null)
-            else resolve(result)
-          }
-          catch(ex) {
-            reject("Database Ex: " + ex);
-          }
-        }
-      })
-    } 
-    catch(ex) {
-      reject("Database Ex: " + ex)
-    }
-  })
+const find = async (key, value) => {
+    const result = await collection.findOne({[key]: {$eq: value}},{_id: 0})
+    return result
 }
 
 // Called after the Express app has started

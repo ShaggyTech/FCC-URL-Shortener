@@ -50,20 +50,13 @@ app.route('/new/*').get((req, res) => {
 
 // Enter a short url and redirect to the long url if it was found.
 app.route('/:short').get((req, res) => {
-  /* 
-  **  The shortened url is stored in the database using this app's hostname + the short phrase.
-  **  Example: "short": "https://gigantic-honey.glitch.me/supersurgeon-cathead"
-  **  APPURL example: https://gigantic-honey.glitch.me/
-  */
-  try {
-      Database.find('short', `${process.env.APPURL}${req.params.short}`)
-        .then((found) => {
-          if (found) res.redirect(encodeURI(found['original']))
-          else res.json({'Error': 'That Short URL is not valid'})
-        })
-  } catch (err) {
-    res.json('Database Error: ' + err)
-  }
+  //  APPURL example: https://gigantic-honey.glitch.me/
+  Database.find('short', `${process.env.APPURL}${req.params.short}`)
+  .then((found) => {
+    if (found) res.redirect(encodeURI(found['original']))
+    else res.json({'Error': 'That Short URL is not valid'})
+  })
+  .catch((err) => res.json({'Test Error': err}))
 })
 
 // Listen for requests and connect to the database if this is the first connection
