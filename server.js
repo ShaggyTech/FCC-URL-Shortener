@@ -65,7 +65,6 @@ const listener = app.listen(process.env.PORT, () => {
   if (!initialized) {
     Database.connect(process.env.APPURL)
     .then(() => {
-      console.log("Database Initialized")
       initialized = true
     })
     .catch((err) => console.log('Database Connection Error: ' + err))

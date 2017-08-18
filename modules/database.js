@@ -46,21 +46,16 @@ const find = async (key, value) => {
 
 // Called after the Express app has started
 // Saves a copy of the database collection and the app's hostname
-function connect(hostname) {
+const connect = async (hostname) => {
   appHostname = hostname
-  return new Promise((resolve, reject) => {
-    try {
-      console.log("Connecting to the database.....")
-      mongo.MongoClient.connect(MONGODB_URI, (err, db) => {
-        if(err) reject(err);
-        collection = db.collection(process.env.COLLECTION);
-        console.log("DB Collection Saved");
-        resolve(collection);
-      });
-    } catch(ex) {
-      reject("Error connecting to the database!");
-    }
-  });
+  console.log("Connecting to the database.....")
+  
+  const db = await mongo.MongoClient.connect(MONGODB_URI)
+  .then((db) => {
+    collection = db.collection(process.env.COLLECTION)
+    console.log("Database Collection Saved")
+  })             
+  return collection
 }
 
 var Database = {
