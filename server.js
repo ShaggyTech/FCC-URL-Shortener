@@ -11,9 +11,6 @@ let initialized = false;
 
 // Static Home page
 app.use(express.static('public'));
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + '/views/index.html')
-})
 
 // Enter a new url and have it shortened
 // the '*' must be a valid url (beginning with https:// or http://)
@@ -38,7 +35,7 @@ app.route('/new/*').get((req, res) => {
           }
           })
         } catch(err) {
-          res.json('URL Validation Error: ' + err)
+          res.json('Database.find error: ' + err)
         }
       }
       else {
@@ -65,18 +62,19 @@ app.route('/:short').get((req, res) => {
           else res.json({'Error': 'That Short URL is not valid'})
         })
   } catch (err) {
-    res.json('Databse Error: ' + err)
+    res.json('Database Error: ' + err)
   }
 })
 
 // Listen for requests and connect to the database if this is the first connection
-let listener = app.listen(process.env.PORT, () => {
+const listener = app.listen(process.env.PORT, () => {
   console.log('Your app is listening on port ' + listener.address().port);
   if (!initialized) {
-    try {
-      initialized = Database.connect(process.env.APPURL)
-    } catch (err) {
-      console.log('Database Connection Error: ' + err)
-    }
+    Database.connect(process.env.APPURL)
+    .then(() => {
+      console.log("Database Initialized")
+      initialized = true
+    })
+    .catch((err) => console.log('Database Connection Error: ' + err))
   }
 })

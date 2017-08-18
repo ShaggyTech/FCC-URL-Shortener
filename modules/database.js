@@ -34,37 +34,28 @@ function insert(value) {
     catch(ex) {
       reject("Insert Ex: " + ex)
     }
-  })
+  });
 }
 
 // Returns the complete database object (excluding the _id field) if the key:value was found
 // Returns null if there was no match in the database
-function find(key, value) {
-  return new Promise((resolve, reject) => {
-    try {
-      collection.findOne({[key]: {$eq: value}},{_id: 0}, (err, result) => {
-        if (err) reject("Databse Error: " + err)
-        else {
-          if (result === null) resolve(null)
-          else resolve(result)
-        }
-      })
-    } 
-    catch(ex) {
-      reject("Database Ex: " + ex)
-    }
+const find = async (key, value) => {
+  let result = await collection.findOne({[key]: {$eq: value}},{_id: 0}, (err, result) => {
+    if (!result) {console.log("negative: " + result); return null}
+    else {console.log(result); return result}
   })
+    
 }
 
 // Called after the Express app has started
 // Saves a copy of the database collection and the app's hostname
 function connect(hostname) {
+  appHostname = hostname
   return new Promise((resolve, reject) => {
     try {
       console.log("Connecting to the database.....")
       mongo.MongoClient.connect(MONGODB_URI, (err, db) => {
         if(err) reject(err);
-        appHostname = hostname;
         collection = db.collection(process.env.COLLECTION);
         console.log("DB Collection Saved");
         resolve(collection);
@@ -75,10 +66,10 @@ function connect(hostname) {
   });
 }
 
-var Datastore = {
+var Database = {
   insert: insert,
   find: find,
   connect: connect
 }
 
-module.exports = Datastore
+module.exports = Database
