@@ -10,7 +10,8 @@
     "express": "*",
     "mongodb": "*",
     "random-word": "*",
-    "valid-url": "*"
+    "valid-url": "*",
+    "is-uri": "*"
   },
   "engines": {
     "node": "8.x"

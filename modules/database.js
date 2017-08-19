@@ -2,7 +2,8 @@
 
 // NPM Packages
 const mongo = require('mongodb'),
-      rw = require('random-word');
+      rw = require('random-word'),
+      Helpers = require('./helpers')
 
 // URI string used to connect to the mongodb service - this app uses mlab.com
 const MONGODB_URI = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.DBPORT+'/'+process.env.DB;
@@ -12,29 +13,16 @@ let collection,    // Stores the database collection for persistent use
     appHostname;   // The hostname of this app, used when storing the short url
 
 // Inserts a new urls object into the database collection
-function insert(value) {
-  const urls = {
-               original: value,
-               short: `${appHostname}${rw()}-${rw()}`
-             };
-  
+const insert = async (value) => {
+  const urls = 
+    {
+     original: value,
+     short: `${appHostname}${rw()}-${rw()}`
+    }
   return new Promise((resolve, reject) => {
-    try {
-      collection.insertOne( {
-        original: urls.original,
-        short: urls.short
-      }, (err, result) => {
-        if (err) reject("Insert Error: " + err)
-        else {
-          console.log("Inserted a document into the url collection.")
-          resolve(urls)
-        }  
-      })
-    }
-    catch(ex) {
-      reject("Insert Ex: " + ex)
-    }
-  });
+    collection.insertOne({original: urls.original, short: urls.short})
+    resolve(urls)
+  })
 }
 
 // Returns the complete database object (excluding the _id field) if the key:value was found
@@ -44,16 +32,24 @@ const find = async (key, value) => {
     return result
 }
 
+const newUrl = async (url) => {
+  const found = await find('original', url)
+  const valid = await Helpers.validate(url)
+  
+  if (found) return found
+  else if (valid) return await insert(url)
+  else return `{Error: ${url} is not a valid URL}`
+}
+
 // Called after the Express app has started
 // Saves a copy of the database collection and the app's hostname
 const connect = async (hostname) => {
   appHostname = hostname
-  console.log("Connecting to the database.....")
-  
+  console.log('Connecting to the database.....')
   const db = await mongo.MongoClient.connect(MONGODB_URI)
   .then((db) => {
     collection = db.collection(process.env.COLLECTION)
-    console.log("Database Collection Saved")
+    console.log('Database Collection Saved')
   })             
   return collection
 }
@@ -61,6 +57,7 @@ const connect = async (hostname) => {
 var Database = {
   insert: insert,
   find: find,
+  newUrl: newUrl,
   connect: connect
 }
 
