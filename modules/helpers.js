@@ -1,20 +1,23 @@
 'use strict'
 
 // Validates a url and simply returns that url if it is valid, else returns undefined
-const validUrl = require('valid-url');
+const validUrl = require('valid-url')
 
-var validate = (url) => {
+const validate = (url) => {
   return new Promise((resolve, reject) => {
-    try {
-      resolve(validUrl.isWebUri(url))
-    } catch(err) {
-      reject("Validate Error: " + err)
-    }  
+    resolve(validUrl.isWebUri(url))
   })
 }
 
-var Helpers = {
-  validate: validate
+function asyncWrap(fn) {  
+  return (req, res, next) => {
+    fn(req, res, next).catch(next);
+  }
+}
+
+const Helpers = {
+  validate: validate,
+  asyncWrap: asyncWrap
 }
 
 module.exports = Helpers
