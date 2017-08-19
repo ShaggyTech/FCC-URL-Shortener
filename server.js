@@ -19,18 +19,23 @@ app.get('/new/*', (req, res) => {
   .then((result) => {
     res.json(result)
   })
-  .catch((err) => res.json(`{'Error Inserting A New URL': ${err}`))
+  .catch((err) => {
+    console.error(err.stack)
+    res.send('Error entering a New URL: ' + err)
+  })
 })
 
 // Enter a short url and redirect to the long url if it was found.
 app.route('/:short').get((req, res) => {
-  //  APPURL example: https://gigantic-honey.glitch.me/
   Database.find('short', `${process.env.APPURL}${req.params.short}`)
   .then((found) => {
     if (found) res.redirect(encodeURI(found['original']))
-    else res.json({'Error': 'That Short URL is not valid'})
+    else res.json({'Error': 'That Short URL was not found'})
   })
-  .catch(err => res.json({'Error finding short URL': err}))
+  .catch((err) => {
+    console.error(err.stack)
+    res.send('Error finding a short url: ' + err)
+  })
 })
 
 // Listen for requests and connect to the database if this is the first connection
@@ -41,6 +46,6 @@ const listener = app.listen(process.env.PORT, () => {
     .then(() => {
       initialized = true
     })
-    .catch((err) => console.log('Database Connection Error: ' + err))
+    .catch((err) => console.error('Database Connection Error: ' + err))
   }
 })
