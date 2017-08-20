@@ -50,7 +50,7 @@ const connect = async (hostname) => {
   return collection
 }
 
-var Database = {
+const Database = {
   insert: insert,
   find: find,
   newUrl: newUrl,

@@ -48,7 +48,7 @@ const server = app.listen(process.env.PORT, () => {
     .catch((err) => {
       console.error('Database Connection Error: ' + err.stack)
       server.close(
-        console.error("Server Closed")
+        console.error('Server Closed')
       )
     })
   }
