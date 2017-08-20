@@ -9,16 +9,19 @@ const validate = (url) => {
   })
 }
 
-// Still need to implement this as the error catcher for all routes
-function asyncWrap(fn) {  
+// Wraps the routes to catch any errors that were bubbled up from the route async functions
+function asyncErrorCatcher(fn) {  
   return (req, res, next) => {
-    fn(req, res, next).catch(next);
+    const routePromise = fn(req, res, next);
+    if (routePromise.catch) {
+        routePromise.catch(err => next(err));
+    }
   }
 }
 
 const Helpers = {
   validate: validate,
-  asyncWrap: asyncWrap
+  asyncErrorCatcher: asyncErrorCatcher
 }
 
 module.exports = Helpers
