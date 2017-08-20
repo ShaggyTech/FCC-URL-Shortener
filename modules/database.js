@@ -42,7 +42,7 @@ const newUrl = async (url) => {
 // Called once after the first request is made to the server
 // Saves a copy of the database collection and the app's hostname
 const connect = async (hostname) => {
-  appHostname = await Promise.resolve(hostname)
+  appHostname = hostname
   console.log('Connecting to the database.....')
   const db = await mongo.MongoClient.connect(MONGODB_URI)
   collection = db.collection(process.env.COLLECTION)
