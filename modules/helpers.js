@@ -10,11 +10,11 @@ const validate = (url) => {
 }
 
 // Wraps the routes to catch any errors that were bubbled up from the route async functions
-function asyncErrorCatcher(fn) {  
+const asyncErrorCatcher = (fn) => {  
   return (req, res, next) => {
     const routePromise = fn(req, res, next);
     if (routePromise.catch) {
-        routePromise.catch(err => next(err));
+      routePromise.catch(err => next(err));
     }
   }
 }
